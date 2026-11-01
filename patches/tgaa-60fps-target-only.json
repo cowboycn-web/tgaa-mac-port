@@ -1,0 +1,28 @@
+{
+  "status": "experimental-target-only-not-installed",
+  "build_id": "d871b992e95b71c541ddc834f63c664b",
+  "cuts": [
+    {
+      "offset": "0x2eb4b8",
+      "before": "083ee8f2",
+      "after": "084ee8f2"
+    }
+  ],
+  "preserve": {
+    "offset": "0x2eb4b4",
+    "bytes": "083ea8d2",
+    "meaning": "engine +0x48 time base stays 30.0f"
+  },
+  "inference": "engine +0x48 scales elapsed ticks; +0x4c is used as target rate in pacing ratio. Change only +0x4c to 60.0f.",
+  "evidence": [
+    "local-data/fps-test/engine-timebase-and-target.txt",
+    "local-data/fps-test/1793346549653028000-1080p-60fps",
+    "local-data/fps-test/1793346691243331000-2160p-60fps"
+  ],
+  "limitations": [
+    "Single dialogue coarse wall-clock snapshots only",
+    "Input polling and screenshot stalls affect comparisons",
+    "Investigation, evidence rotation, audio/video sync and other chapters unverified"
+  ],
+  "observed": "1080p and 2160p render ~60 FPS; sampled one-second dialogue stage resembles 30 FPS baseline. Full timing/input validation pending."
+}

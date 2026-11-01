@@ -1,0 +1,2 @@
+# Japanese 1.0.0 handheld 1080p patch: map mouse touches to the rendered 1920x1080 screen.
+DM_TOUCH_1080=1

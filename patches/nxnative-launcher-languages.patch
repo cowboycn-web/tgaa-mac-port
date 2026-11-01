@@ -1,0 +1,325 @@
+diff --git a/dm/mac/Launcher.swift b/dm/mac/Launcher.swift
+--- a/dm/mac/Launcher.swift
++++ b/dm/mac/Launcher.swift
+@@ -51,7 +51,7 @@
+ 
+ private enum KeyboardKeys {
+     static let defaults = [13, 0, 1, 2, 38, 40, 32, 34, 12, 14, 6, 8, 3, 5, 36, 48, 123, 126, 124, 125, 49]
+-    static let actions = ["摇杆上", "摇杆左", "摇杆下", "摇杆右", "A · 确认", "B · 返回", "X", "Y", "L", "R", "ZL", "ZR", "按下左摇杆", "按下右摇杆", "+ · 菜单", "−", "十字左", "十字上", "十字右", "十字下", "摇动手柄"]
++    static let actions = [launcherText("摇杆上", "Left stick up"), launcherText("摇杆左", "Left stick left"), launcherText("摇杆下", "Left stick down"), launcherText("摇杆右", "Left stick right"), launcherText("A · 确认", "A · Confirm"), launcherText("B · 返回", "B · Back"), "X", "Y", "L", "R", "ZL", "ZR", launcherText("按下左摇杆", "Press left stick"), launcherText("按下右摇杆", "Press right stick"), launcherText("+ · 菜单", "+ · Menu"), "−", launcherText("十字左", "D-pad left"), launcherText("十字上", "D-pad up"), launcherText("十字右", "D-pad right"), launcherText("十字下", "D-pad down"), launcherText("摇动手柄", "Shake controller")]
+     static let choices: [(Int, String)] = [
+         (0,"A"),(11,"B"),(8,"C"),(2,"D"),(14,"E"),(3,"F"),(5,"G"),(4,"H"),(34,"I"),(38,"J"),(40,"K"),(37,"L"),(46,"M"),(45,"N"),(31,"O"),(35,"P"),(12,"Q"),(15,"R"),(1,"S"),(17,"T"),(32,"U"),(9,"V"),(13,"W"),(7,"X"),(16,"Y"),(6,"Z"),
+         (29,"0"),(18,"1"),(19,"2"),(20,"3"),(21,"4"),(23,"5"),(22,"6"),(26,"7"),(28,"8"),(25,"9"),
+@@ -84,9 +84,9 @@
+             }
+             .pickerStyle(.menu)
+         }
+-        Button("恢复默认按键") { raw = "" }
++        Button(launcherText("恢复默认按键", "Reset key bindings")) { raw = "" }
+             .disabled(raw.isEmpty || codes == KeyboardKeys.defaults)
+-        Text("更换已使用的按键时会交换两项。按键设置自动保存，下次启动仍然有效。")
++        Text(launcherText("更换已使用的按键时会交换两项。按键设置自动保存，下次启动仍然有效。", "Assigning a key already in use swaps the bindings. Changes are saved automatically."))
+             .font(.footnote).foregroundStyle(.secondary)
+     }
+ }
+@@ -106,60 +106,60 @@
+             HStack(spacing: 12) {
+                 Image(nsImage: NSApp.applicationIconImage).resizable().frame(width: 64, height: 64).accessibilityHidden(true)
+                 VStack(alignment: .leading, spacing: 2) {
+-                    Text(info("CFBundleName") ?? "游戏").font(.title2.weight(.semibold))
+-                    Text("版本 \(info("CFBundleShortVersionString") ?? "1.0")").foregroundStyle(.secondary)
++                    Text(info("CFBundleName") ?? launcherText("游戏", "Game")).font(.title2.weight(.semibold))
++                    Text("\(launcherText("版本", "Version")) \(info("CFBundleShortVersionString") ?? "1.0")").foregroundStyle(.secondary)
+                 }
+                 Spacer()
+             }
+             .padding([.horizontal, .top], 20)
+             Form {
+-                Section("存档") {
+-                    Picker("使用存档", selection: $saveProfile) {
+-                        Text("现有存档").tag("main")
+-                        Text("新存档（从头开始）").tag("fresh")
+-                    }
+-                    Text("新存档会单独保存，现有进度不会被覆盖。")
++                Section(launcherText("存档", "Save data")) {
++                    Picker(launcherText("使用存档", "Save profile"), selection: $saveProfile) {
++                        Text(launcherText("现有存档", "Current save")).tag("main")
++                        Text(launcherText("新存档（从头开始）", "New save (start over)")).tag("fresh")
++                    }
++                    Text(launcherText("新存档会单独保存，现有进度不会被覆盖。", "New saves use a separate folder. Your current progress is kept."))
+                         .font(.footnote).foregroundStyle(.secondary)
+                 }
+-                Section("手柄") {
+-                    Picker("手柄按键方式", selection: $controllerStyle) {
+-                        Text("自动识别").tag("auto")
++                Section(launcherText("手柄", "Controller")) {
++                    Picker(launcherText("手柄按键方式", "Button layout"), selection: $controllerStyle) {
++                        Text(launcherText("自动识别", "Automatic")).tag("auto")
+                         Text("Switch").tag("switch")
+-                        Text("Xbox／通用").tag("xbox")
++                        Text(launcherText("Xbox／通用", "Xbox / Generic")).tag("xbox")
+                         Text("PlayStation").tag("ps")
+-                        Text("键盘").tag("keyboard")
+-                    }
+-                    Text("自动识别会在启动时选择游戏内的按键图标；没有手柄时使用键盘图标。更换手柄或键位后重新启动游戏即可更新图标。")
++                        Text(launcherText("键盘", "Keyboard")).tag("keyboard")
++                    }
++                    Text(launcherText("自动模式跟随键盘和手柄输入切换图标。修改键位后请重新启动游戏。", "Automatic mode follows keyboard and controller input. Restart after changing key bindings."))
+                         .font(.footnote).foregroundStyle(.secondary)
+                 }
+                 settingSections(basic: true)
+                 if m.settings.contains(where: { $0.env == "DM_TGAA_RESOLUTION" }) {
+                     Section {
+-                        Button("恢复标准画质") {
++                        Button(launcherText("恢复标准画质", "Restore standard graphics")) {
+                             let standard = ["DM_TGAA_DISPLAY": "sdr", "DM_TGAA_RESOLUTION": "1080", "DM_TGAA_FPS": "30", "DM_PRESENT_UPSCALE": "off", "DM_OPMODE": "0", "DM_METAL_HUD": "0"]
+                             for (key, value) in standard where !m.fixed.contains(key) {
+                                 if m.values[key] != nil { m.values[key] = value }
+                             }
+                         }
+-                        Text("1080p · 原始 30 帧 · SDR。点击“开始游戏”后生效，保留存档和按键设置。")
++                        Text(launcherText("1080p · 原始 30 帧 · SDR。点击“开始游戏”后生效，保留存档和按键设置。", "1080p · 30 FPS · SDR. Applied when you select Play. Saves and key bindings are kept."))
+                             .font(.footnote).foregroundStyle(.secondary)
+                     }
+                 }
+                 Section {
+-                    DisclosureGroup("键盘按键设置", isExpanded: $keyboardExpanded) {
++                    DisclosureGroup(launcherText("键盘按键设置", "Keyboard bindings"), isExpanded: $keyboardExpanded) {
+                         KeyboardSettingsView()
+                     }
+                 }
+                 Section {
+-                    DisclosureGroup("高级设置", isExpanded: $advanced) {}
++                    DisclosureGroup(launcherText("高级设置", "Advanced settings"), isExpanded: $advanced) {}
+                 }
+                 if advanced {
+                     settingSections(basic: false)
+                     Section {
+-                        Button("恢复测试默认设置") { m.reset() }
++                        Button(launcherText("恢复测试默认设置", "Restore tested defaults")) { m.reset() }
+                             .disabled(!m.changed)
+                     } footer: {
+-                        Text("恢复此游戏经过测试的默认设置。")
++                        Text(launcherText("恢复此游戏经过测试的默认设置。", "Restore the tested defaults for this game."))
+                     }
+                 }
+             }
+@@ -170,10 +170,10 @@
+                 fit(extraHeight)
+             }
+             HStack {
+-                Toggle("启动时显示此窗口", isOn: $show).toggleStyle(.checkbox)
++                Toggle(launcherText("启动时显示此窗口", "Show this window at launch"), isOn: $show).toggleStyle(.checkbox)
+                 Spacer()
+-                Button("退出") { done(false) }
+-                Button("开始游戏") { done(true) }.keyboardShortcut(.defaultAction)
++                Button(launcherText("退出", "Quit")) { done(false) }
++                Button(launcherText("开始游戏", "Play")) { done(true) }.keyboardShortcut(.defaultAction)
+             }
+             .padding(20)
+         }
+@@ -202,10 +202,10 @@
+     func applicationDidFinishLaunching(_ n: Notification) { showWindow() }
+ 
+     func showWindow() {
+-        let name = info("CFBundleName") ?? "游戏"
++        let name = info("CFBundleName") ?? launcherText("游戏", "Game")
+         let menu = NSMenu(), item = NSMenuItem(), app = NSMenu()
+-        app.addItem(withTitle: "关闭窗口", action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
+-        app.addItem(withTitle: "退出 \(name)", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
++        app.addItem(withTitle: launcherText("关闭窗口", "Close window"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
++        app.addItem(withTitle: "\(launcherText("退出", "Quit")) \(name)", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+         item.submenu = app; menu.addItem(item); NSApp.mainMenu = menu
+         let w = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 560, height: 660), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
+         w.title = name; w.isReleasedWhenClosed = false; w.delegate = self
+diff --git a/dm/ios/Sources/LauncherRow.swift b/dm/ios/Sources/LauncherRow.swift
+--- a/dm/ios/Sources/LauncherRow.swift
++++ b/dm/ios/Sources/LauncherRow.swift
+@@ -1,6 +1,12 @@
+ // One launcher setting as a row (a menu, a slider with its percentage, a toggle), shared by the iOS launcher (Launcher.swift) and the Mac app's settings window (dm/mac/Launcher.swift).
+ // A row whose setting is fixed by an env file or by the launch environment is shown but disabled.
+ import SwiftUI
++
++// Bundle UI language is independent of the game's resource language.
++// Bundles without this key retain the existing Chinese interface.
++func launcherText(_ chinese: String, _ english: String) -> String {
++    Bundle.main.object(forInfoDictionaryKey: "DMUILanguage") as? String == "en" ? english : chinese
++}
+ 
+ extension LauncherModel {
+     func binding(_ s: Setting) -> Binding<String> { Binding(get: { self.values[s.env] ?? s.def }, set: { self.values[s.env] = $0 }) }
+@@ -13,7 +19,7 @@
+     private var locked: Bool { m.fixed.contains(s.env) }
+     private var note: String {
+         guard locked else { return s.note }
+-        return (s.note.isEmpty ? "" : s.note + " · ") + (m.fromLaunch.contains(s.env) ? "由启动环境设定" : "由环境文件设定")
++        return (s.note.isEmpty ? "" : s.note + " · ") + (m.fromLaunch.contains(s.env) ? launcherText("由启动环境设定", "Set by launch environment") : launcherText("由环境文件设定", "Set by environment file"))
+     }
+     private var rangeValue: Binding<Double> {
+         Binding(get: { Double(m.values[s.env] ?? s.def) ?? s.max ?? 1 },
+diff --git a/dm/host/front_mac.m b/dm/host/front_mac.m
+--- a/dm/host/front_mac.m
++++ b/dm/host/front_mac.m
+@@ -343,21 +343,26 @@
+ - (void)selectGuidePart:(NSSegmentedControl *)sender;
+ - (void)selectGuideEpisode:(NSPopUpButton *)sender;
+ @end
++static NSString *ui_text(NSString *chinese, NSString *english) {
++    const char *language = getenv("DM_UI_LANGUAGE");
++    return language && !strcmp(language, "en") ? english : chinese;
++}
++
+ @implementation DmMenuActions
+ - (void)openLaunchSettings:(id)sender {
+     (void)sender;
+     NSAlert *alert = [NSAlert new];
+-    alert.messageText = @"重启游戏并打开启动设置？";
+-    alert.informativeText = @"未保存的游戏进度可能丢失。存档文件不会被删除。";
+-    [alert addButtonWithTitle:@"重启并打开设置"];
+-    [alert addButtonWithTitle:@"取消"];
++    alert.messageText = ui_text(@"重启游戏并打开启动设置？", @"Restart the game and open launch settings?");
++    alert.informativeText = ui_text(@"未保存的游戏进度可能丢失。存档文件不会被删除。", @"Unsaved progress may be lost. Save files will not be deleted.");
++    [alert addButtonWithTitle:ui_text(@"重启并打开设置", @"Restart and open settings")];
++    [alert addButtonWithTitle:ui_text(@"取消", @"Cancel")];
+     if ([alert runModal] == NSAlertFirstButtonReturn) exit(75);
+ }
+ - (void)selectGuidePart:(NSSegmentedControl *)sender {
+     [self.guideEpisode removeAllItems];
+     NSInteger part = sender.selectedSegment + 1;
+     for (NSDictionary *item in self.guideCases) if ([item[@"part"] integerValue] == part)
+-        [self.guideEpisode addItemWithTitle:item[@"title"] ?: @"未命名章节"];
++        [self.guideEpisode addItemWithTitle:item[@"title"] ?: ui_text(@"未命名章节", @"Untitled episode")];
+     [self.guideEpisode selectItemAtIndex:0];
+     [self selectGuideEpisode:self.guideEpisode];
+ }
+@@ -366,7 +371,7 @@
+     NSDictionary *chapter = nil;
+     for (NSDictionary *item in self.guideCases) if ([item[@"part"] integerValue] == part && found++ == episode) { chapter = item; break; }
+     [self.guideStage removeAllItems];
+-    for (NSDictionary *section in chapter[@"sections"]) [self.guideStage addItemWithTitle:section[@"title"] ?: @"未命名阶段"];
++    for (NSDictionary *section in chapter[@"sections"]) [self.guideStage addItemWithTitle:section[@"title"] ?: ui_text(@"未命名阶段", @"Untitled section")];
+     [self.guideStage selectItemAtIndex:0];
+     [self selectGuideStage:self.guideStage];
+ }
+@@ -382,14 +387,14 @@
+                                NSParagraphStyleAttributeName: paragraph};
+         [page appendAttributedString:[[NSAttributedString alloc] initWithString:s attributes:attr]];
+     };
+-    if (!chapter) add(@"本地攻略文件缺失或内容无效。", 16, NSFontWeightRegular, ink);
++    if (!chapter) add(ui_text(@"本地攻略文件缺失或内容无效。", @"The local walkthrough is missing or invalid."), 16, NSFontWeightRegular, ink);
+     else {
+         add([NSString stringWithFormat:@"%@\n\n", chapter[@"title"]], 24, NSFontWeightSemibold, ink);
+         NSArray *sections = chapter[@"sections"];
+         NSInteger index = sender.indexOfSelectedItem;
+         if (index >= 0 && index < (NSInteger)sections.count) {
+             NSDictionary *section = sections[index];
+-            add([NSString stringWithFormat:@"%@ · 第 %ld / %lu 段\n\n", section[@"title"], (long)index + 1, (unsigned long)sections.count], 18, NSFontWeightSemibold, accent);
++            add([NSString stringWithFormat:ui_text(@"%@ · 第 %ld / %lu 段\n\n", @"%@ · Section %ld / %lu\n\n"), section[@"title"], (long)index + 1, (unsigned long)sections.count], 18, NSFontWeightSemibold, accent);
+             NSUInteger step = 1;
+             for (NSString *tip in section[@"tips"]) add([NSString stringWithFormat:@"%lu. %@\n\n", (unsigned long)step++, tip], 15, NSFontWeightRegular, ink);
+         }
+@@ -406,10 +411,10 @@
+         self.guideCases = [document[@"chapters"] isKindOfClass:NSArray.class] ? document[@"chapters"] : @[];
+         NSRect r = NSMakeRect(0, 0, 720, 620);
+         NSWindow *w = [[NSWindow alloc] initWithContentRect:r styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskResizable | NSWindowStyleMaskMiniaturizable backing:NSBackingStoreBuffered defer:NO];
+-        w.title = @"离线攻略";
++        w.title = ui_text(@"离线攻略", @"Offline walkthrough");
+         w.minSize = NSMakeSize(460, 360);
+         NSView *content = w.contentView;
+-        NSSegmentedControl *part = [NSSegmentedControl segmentedControlWithLabels:@[@"第一部", @"第二部"] trackingMode:NSSegmentSwitchTrackingSelectOne target:self action:@selector(selectGuidePart:)];
++        NSSegmentedControl *part = [NSSegmentedControl segmentedControlWithLabels:@[ui_text(@"第一部", @"Adventures"), ui_text(@"第二部", @"Resolve")] trackingMode:NSSegmentSwitchTrackingSelectOne target:self action:@selector(selectGuidePart:)];
+         NSPopUpButton *episode = [[NSPopUpButton alloc] initWithFrame:NSZeroRect pullsDown:NO];
+         episode.target = self; episode.action = @selector(selectGuideEpisode:);
+         NSPopUpButton *stage = [[NSPopUpButton alloc] initWithFrame:NSZeroRect pullsDown:NO];
+@@ -500,10 +505,12 @@
+         [[bar addItemWithTitle:@"" action:nil keyEquivalent:@""] setSubmenu:app];
+         if (getenv("DM_MAC_APP_LAUNCHER")) {
+             g_menu_actions = [DmMenuActions new];
+-            NSMenuItem *settings = [app addItemWithTitle:@"启动设置…" action:@selector(openLaunchSettings:) keyEquivalent:@","];
++            NSMenuItem *settings = [app addItemWithTitle:ui_text(@"启动设置…", @"Launch Settings…") action:@selector(openLaunchSettings:) keyEquivalent:@","];
+             settings.target = g_menu_actions;
+-            NSMenuItem *guide = [app addItemWithTitle:@"攻略…" action:@selector(showGuide:) keyEquivalent:@"g"];
+-            guide.target = g_menu_actions;
++            if ([NSBundle.mainBundle pathForResource:@"guide" ofType:@"json"]) {
++                NSMenuItem *guide = [app addItemWithTitle:ui_text(@"攻略…", @"Walkthrough…") action:@selector(showGuide:) keyEquivalent:@"g"];
++                guide.target = g_menu_actions;
++            }
+             [app addItem:[NSMenuItem separatorItem]];
+         }
+         [app addItemWithTitle:@"Quit " DM_GAME_NAME action:@selector(terminate:) keyEquivalent:@"q"];
+diff --git a/dm/mac/launcher.c b/dm/mac/launcher.c
+--- a/dm/mac/launcher.c
++++ b/dm/mac/launcher.c
+@@ -184,6 +184,10 @@
+     snprintf(p, sizeof p, "%s/env.txt", dm); env_file(p);
+     setenv("DM_ENV_FILE_KEYS", g_file_keys ? g_file_keys : "", 1); setenv("DM_ENV_LAUNCH_KEYS", g_launch_keys ? g_launch_keys : "", 1);
+     free(g_file_keys); free(g_launch_keys);
++    // The host inherits the same UI language even when the window is skipped.
++    char ui_language[32] = "";
++    if (info_string("DMUILanguage", ui_language, sizeof ui_language)) setenv("DM_UI_LANGUAGE", ui_language, 1);
++    else unsetenv("DM_UI_LANGUAGE");
+     dm_mac_keyboard_map();
+     int window = !(getenv("DM_LAUNCHER") && !strcmp(getenv("DM_LAUNCHER"), "0"));
+     for (int i = 1; i < argc; i++) if (!strcmp(argv[i], "--no-launcher")) window = 0;
+@@ -243,7 +247,9 @@
+             }
+             if (visual >= 1 && dm_mac_button_overlay(res, icons, visual, getenv("DM_KEYMAP"))) {
+                 setenv("DM_ROMFS_OVERLAY", icons, 1);
+-                fprintf(stderr, "launcher: in-game button icons %s, version tag hidden\n", styles[visual]);
++                snprintf(p, sizeof p, "%s/button_source/msg_sys_jpn.arc", res);
++                fprintf(stderr, "launcher: in-game button icons %s%s\n", styles[visual],
++                        access(p, F_OK) == 0 ? ", version tag hidden" : "");
+             } else {
+                 unsetenv("DM_ROMFS_OVERLAY");
+                 if (visual >= 1) fprintf(stderr, "[RED] launcher: could not prepare in-game button overlay; using game originals\n");
+diff --git a/dm/mac/pack_app.py b/dm/mac/pack_app.py
+--- a/dm/mac/pack_app.py
++++ b/dm/mac/pack_app.py
+@@ -149,6 +149,7 @@
+          'LSApplicationCategoryType': a.category or 'public.app-category.games', 'DMTitleID': a.title_id.upper(), 'DMRomfsMarker': a.marker or '', 'DMLanguage': a.lang or 'en-US'}
+     if getattr(a, 'data_id', None): p['DMDataID'] = a.data_id
+     p['DMResourceVariant'] = getattr(a, 'resource_variant', 'original')
++    if getattr(a, 'ui_language', None): p['DMUILanguage'] = a.ui_language
+     if icon: p['CFBundleIconFile'] = 'AppIcon'
+     if a.settings:
+         listed = json.loads(Path(a.settings).read_text(encoding='utf-8'))['settings']
+@@ -339,6 +340,7 @@
+     ap.add_argument('--guide', help='offline JSON guide copied into Contents/Resources/guide.json')
+     ap.add_argument('--resource-variant', choices=('original', 'chinese'), default='original', help='Gate Chinese-only resource cleanup; never translates game assets')
+     ap.add_argument('--data-id', help='Independent save/cache data directory identifier')
++    ap.add_argument('--ui-language', choices=('en', 'zh-Hans'), help='Launcher/menu language; independent of --lang')
+     ap.add_argument('--title-id', required=True); ap.add_argument('--name', required=True)
+     ap.add_argument('--version'); ap.add_argument('--bundle-id'); ap.add_argument('--category'); ap.add_argument('--lang'); ap.add_argument('--marker', help='the profile\'s romfs_marker')
+     ap.add_argument('--icon', help='the game icon (icon.jpg from the control data)')
+diff --git a/dm/mac/button_atlas.c b/dm/mac/button_atlas.c
+--- a/dm/mac/button_atlas.c
++++ b/dm/mac/button_atlas.c
+@@ -1,4 +1,4 @@
+-// Build an in-game button font overlay from the game's Chinese-patched font ARC.
++// Build button overlays from the selected original or Chinese-patched font ARC.
+ // Copy the cleaned Settings message alongside it; all other font entries stay intact.
+ #include <errno.h>
+ #include <fcntl.h>
+@@ -183,16 +183,20 @@
+     mkdir(dir, 0755);
+     if (snprintf(source, sizeof source, "%s/button_source/msg_sys_jpn.arc", resources) >= (int)sizeof source ||
+         snprintf(target, sizeof target, "%s/msg_sys_jpn.arc", dir) >= (int)sizeof target) return 0;
++    struct stat status;
++    if (stat(dir, &status) || !S_ISDIR(status.st_mode)) return 0;
+     int have_message = access(source, F_OK) == 0;
+     if (have_message) { if (!copy_file(source, target)) return 0; }
+-    else unlink(target);
++    else if (unlink(target) && errno != ENOENT) return 0;
+     if (style == 1) {
+         // A prior keyboard/controller overlay must not survive a return to Switch.
+         for (int i = 0; i < 2; i++) {
+             snprintf(target, sizeof target, "%s/font_%s.arc", dir, i ? "eng" : "jpn");
+             if (unlink(target) && errno != ENOENT) return 0;
+         }
+-        return have_message;
++        // Untranslated resources need no cleaned message: an empty Switch
++        // overlay is valid after stale controller/font resources are removed.
++        return 1;
+     }
+     uint32_t *order = malloc((PAYLOAD / 16) * sizeof *order); if (!order) return 0;
+     block_order(order);

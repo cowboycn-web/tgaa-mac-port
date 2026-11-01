@@ -1,0 +1,42 @@
+{
+  "status": "reference-recipe-integrated-as-2160-test-option",
+  "build_id": "d871b992e95b71c541ddc834f63c664b",
+  "input": "Existing Japanese 1.0.0 rewritten binary with the verified 1080p trampoline",
+  "cuts": [
+    {
+      "offset": "0x80dd30",
+      "before": "08f080520987805268261b29d067fc1700000000",
+      "after": "08e08152090e815268261b29e8260029cf67fc17",
+      "purpose": "3840x2160 render dimensions and maximum target dimensions"
+    },
+    {
+      "offset": "0x1c914",
+      "before": "e30314aa",
+      "after": "0380acd2",
+      "purpose": "1600 MiB NVNTexture pool; retain the production guest heap"
+    },
+    {
+      "offset": "0x603b68",
+      "before": "2108221e",
+      "after": "4140201e",
+      "purpose": "Use supplied width directly in initial relative-target allocation instead of multiplying by resolution scale again"
+    },
+    {
+      "offset": "0x603b78",
+      "before": "0008211e",
+      "after": "2040201e",
+      "purpose": "Use supplied height directly in initial relative-target allocation instead of multiplying by resolution scale again"
+    },
+    {
+      "offset": "0x1c8a0",
+      "before": "e30314aa",
+      "after": "0320a3d2",
+      "purpose": "400 MiB NVNBuffer pool for scene/model buffer allocations"
+    }
+  ],
+  "limitations": [
+    "Reference recipe for the manually patched experiment; the app now applies these changes at load time for DM_TGAA_RESOLUTION=2160",
+    "Requires visual and render-pass checks beyond the tested chapter",
+    "Do not feed a manually patched experimental binary to the integrated runtime patcher"
+  ]
+}

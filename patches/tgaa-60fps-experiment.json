@@ -1,0 +1,24 @@
+{
+  "status": "experimental-timing-mismatch-not-installed",
+  "build_id": "d871b992e95b71c541ddc834f63c664b",
+  "offset": "0x2eb4b4",
+  "before": "083ea8d2083ee8f2",
+  "after": "084ea8d2084ee8f2",
+  "observed": "1080p and 2160p first-episode courtroom rendering ~60 FPS; matched-time screenshots show dialogue/animation progressing ahead of 30 FPS baseline",
+  "reference": "https://github.com/AdmiralCurtiss/dgs_hackfix/blob/main/dllmain.cpp",
+  "evidence": [
+    "local-data/fps-test/gameplay60-local.log",
+    "local-data/fps-test/1793344734925752000-2160p-60fps/result.json"
+  ],
+  "timing_evidence": [
+    "local-data/fps-test/1793344891746900000-1080p-30fps",
+    "local-data/fps-test/1793344998994469000-1080p-60fps"
+  ],
+  "rejected_step_candidate": {
+    "offset": "0x2eb4c8",
+    "before": "e8030232",
+    "after": "08f0a752",
+    "result": "Did not restore baseline dialogue timing",
+    "evidence": "local-data/fps-test/1793345539228026000-1080p-60fps"
+  }
+}

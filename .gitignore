@@ -1,0 +1,64 @@
+# macOS metadata
+.DS_Store
+._*
+
+# Local workspace data, upstream checkouts, and temporary work
+/local-data/
+/upstream/
+/release/
+/tmp*/
+
+# Game containers, extracted content, keys, and user saves
+*.[xX][cC][iI]
+*.[xX][cC][zZ]
+*.[nN][sS][pP]
+*.[nN][sS][zZ]
+*.nca
+*.nso
+*.npdm
+*.keys
+*.app.key
+*.pem
+*.p12
+*.pfx
+*.mobileprovision
+romfs/
+exefs/
+save/
+save-fresh/
+romfs*.img
+
+# Archives, generated applications, installers, and build output
+*.rar
+*.zip
+*.7z
+*.tar
+*.tar.gz
+*.tgz
+*.app/
+*.ipa
+*.dmg
+*.dmg.sha256
+*.pkg
+*.o
+*.dylib
+*.so
+*.metallib
+*_build/
+build/
+dist/
+
+# Python environments and caches
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local environment settings and logs
+.env
+.env.*
+!.env.example
+*.log
